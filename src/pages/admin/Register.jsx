@@ -5,22 +5,54 @@ import { useNavigate, Link } from 'react-router-dom';
 import Layout from '../../components/common/Layout';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
+import axios from 'axios';
+import { baseurl } from '../../utils/constants';
 
 const Register = () => {
   const { register: registerUser } = useAuth();
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
 
+  // const onSubmit = async (data) => {
+  //   try {
+  //     await registerUser({
+  //       username: data.username,
+  //       email: data.email,
+  //       password: data.password,
+  //     });
+  //     navigate('/admin/dashboard');
+  //   } catch (error) {
+  //     alert(error.message || 'Registration failed');
+  //   }
+  // };
+
   const onSubmit = async (data) => {
+    const body = {
+      username: data.username,
+      email: data.email,
+      password: data.password,
+    };
+
+    console.log("URL HIT >>>", baseurl)
+
+    console.log("Request Body:", body);
+
     try {
-      await registerUser({
-        username: data.username,
-        email: data.email,
-        password: data.password,
-      });
-      navigate('/admin/dashboard');
+      const response = await axios.post(
+        `${baseurl}/api/auth/register`,
+        body,
+        {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      );
+
+      console.log("Success:", response.data);
+      alert("Registration successful!");
     } catch (error) {
-      alert(error.message || 'Registration failed');
+      console.error("Unexpected Error:", error.message);
+      alert(`Error: ${error.message}`);
     }
   };
 

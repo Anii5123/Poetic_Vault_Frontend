@@ -1,7 +1,7 @@
 // Poem categories
 export const categories = [
   'love',
-  'friendship', 
+  'friendship',
   'motivation',
   'nature',
   'other'
@@ -90,3 +90,8 @@ export const APP_CONFIG = {
   DESCRIPTION: 'Unlock personalized poems with a secret passcode',
   VERSION: '1.0.0'
 };
+
+
+export const baseurl =
+  // "https://poetic-vault-backend.onrender.com"
+  "http://localhost:5000"
