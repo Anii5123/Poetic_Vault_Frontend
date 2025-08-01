@@ -7,6 +7,8 @@ import Input from '../../components/ui/Input';
 import Layout from '../../components/common/Layout';
 import poemService from '../../services/poems';
 import { useToast } from '../../hooks/useToast'; // ✅ Correct import
+import axios from 'axios';
+import { baseurl } from '../../utils/constants';
 
 const UnlockPoem = () => {
   const { id } = useParams();
@@ -15,19 +17,51 @@ const UnlockPoem = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm();
 
+  // const onSubmit = async (data) => {
+  //   setIsSubmitting(true);
+  //   try {
+  //     const res = await poemService.unlockPoem(id, data.passcode, data.viewerName);
+  //     toast.success('Poem unlocked successfully!');
+  //     navigate(`/poem/${id}`, { state: { poem: res.poem } });
+  //   } catch (err) {
+  //     const errorMessage = err.response?.data?.message || err.message || 'Failed to unlock poem. Please check your passcode.';
+  //     toast.error(errorMessage);
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
+
   const onSubmit = async (data) => {
-    setIsSubmitting(true);
+    const body = {
+      passcode: data.passcode,
+      viewerName: data.viewerName
+    }
+    console.log("BODY >>> ", body);
+    console.log("API Hit>>", `${baseurl}/api/poems/unlock`)
+
+    const response = await axios.post(`${baseurl}/api/poems/unlock`,
+      body,
+      {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }
+    )
+    console.log("RESPONSE STATUS >>> ", response.status)
     try {
-      const res = await poemService.unlockPoem(id, data.passcode, data.viewerName);
-      toast.success('Poem unlocked successfully!');
-      navigate(`/poem/${id}`, { state: { poem: res.poem } });
-    } catch (err) {
+      if(response.status == 200){
+        toast.success('Poem unlocked successfully!');
+        console.log(response.data.poem)
+        const id = response.data.poem._id;
+        navigate(`/poem/${id}`,{ state: { poem: response.data.poem } })
+      }
+    } catch (error) {
       const errorMessage = err.response?.data?.message || err.message || 'Failed to unlock poem. Please check your passcode.';
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }
 
   return (
     <Layout>
@@ -47,9 +81,9 @@ const UnlockPoem = () => {
             error={errors.passcode?.message}
             placeholder="Enter passcode"
           />
-          <Button 
-            size="lg" 
-            className="w-full" 
+          <Button
+            size="lg"
+            className="w-full"
             type="submit"
             loading={isSubmitting}
             disabled={isSubmitting}
