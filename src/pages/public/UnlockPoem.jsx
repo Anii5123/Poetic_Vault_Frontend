@@ -1,72 +1,59 @@
-// src/pages/UnlockPoem.jsx
+// src/pages/public/UnlockPoem.jsx
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Layout from '../../components/common/Layout';
-import poemService from '../../services/poems';
-import { useToast } from '../../hooks/useToast'; // ✅ Correct import
+import { useToast } from '../../hooks/useToast';
 import axios from 'axios';
 import { baseurl } from '../../utils/constants';
 
 const UnlockPoem = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
-  const toast = useToast(); // ✅ Correct usage
+  const toast = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { register, handleSubmit, formState: { errors } } = useForm();
-
-  // const onSubmit = async (data) => {
-  //   setIsSubmitting(true);
-  //   try {
-  //     const res = await poemService.unlockPoem(id, data.passcode, data.viewerName);
-  //     toast.success('Poem unlocked successfully!');
-  //     navigate(`/poem/${id}`, { state: { poem: res.poem } });
-  //   } catch (err) {
-  //     const errorMessage = err.response?.data?.message || err.message || 'Failed to unlock poem. Please check your passcode.';
-  //     toast.error(errorMessage);
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
   const onSubmit = async (data) => {
+    setIsSubmitting(true);
     const body = {
       passcode: data.passcode,
-      viewerName: data.viewerName
-    }
-    console.log("BODY >>> ", body);
-    console.log("API Hit>>", `${baseurl}/api/poems/unlock`)
+      viewerName: data.viewerName,
+    };
 
-    const response = await axios.post(`${baseurl}/api/poems/unlock`,
-      body,
-      {
-        headers: {
-          "Content-Type": "application/json"
-        }
-      }
-    )
-    console.log("RESPONSE STATUS >>> ", response.status)
     try {
-      if(response.status == 200){
+      const response = await axios.post(`${baseurl}/api/poems/unlock`, body, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (response.status === 200) {
         toast.success('Poem unlocked successfully!');
-        console.log(response.data.poem)
-        const id = response.data.poem._id;
-        navigate(`/poem/${id}`,{ state: { poem: response.data.poem } })
+        navigate(`/poem/${response.data.poem._id}`, {
+          state: { poem: response.data.poem },
+        });
       }
-    } catch (error) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to unlock poem. Please check your passcode.';
+    } catch (err) {
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        'Failed to unlock poem. Please check your passcode.';
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <Layout>
       <div className="max-w-md mx-auto mt-20 p-6 bg-white rounded-lg shadow-lg">
-        <h2 className="text-2xl font-great-vibes mb-6 text-center text-poetic-purple">Unlock Your Poem</h2>
+        <h2 className="text-2xl font-great-vibes mb-6 text-center text-poetic-purple">
+          Unlock Your Poem
+        </h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <Input
             label="Your Name"

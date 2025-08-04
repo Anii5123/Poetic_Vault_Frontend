@@ -92,6 +92,4 @@ export const APP_CONFIG = {
 };
 
 
-export const baseurl =
-  // "https://poetic-vault-backend.onrender.com"
-  "http://localhost:5000"
+export const baseurl = "https://poetic-vault.onrender.com";
